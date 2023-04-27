@@ -1,0 +1,35 @@
+name: Argo CD Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup kubectl
+        uses: docker://bitnami/kubectl:latest
+        with:
+          args: |
+            config set-cluster my-cluster --server=$KUBE_SERVER --insecure-skip-tls-verify
+            config set-credentials my-user --token=$KUBE_TOKEN
+            config set-context my-context --cluster=my-cluster --user=my-user --namespace=$KUBE_NAMESPACE
+            config use-context my-context
+
+      - name: Install Argo CD CLI
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.16'
+      - run: go get github.com/argoproj/argo-cd/cmd/argocd
+
+      - name: Login to Argo CD
+        run: argocd login --insecure --grpc-web --username admin --password $ARGOCD_PASSWORD $ARGOCD_SERVER
+
+      - name: Sync application
+        run: argocd app sync MyArgoCDrayah --timeout=10m
