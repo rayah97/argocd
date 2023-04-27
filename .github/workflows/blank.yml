@@ -15,7 +15,7 @@ jobs:
         uses: docker://bitnami/kubectl:latest
         with:
           args: |
-            config set-cluster minikube --server=$KUBE_SERVER --insecure-skip-tls-verify
+            config set-cluster minikube --server=$KUBE_SERVER --certificate-authority
             config set-credentials my-sa --token=$KUBE_TOKEN
             config set-context my-context --cluster=my-cluster --user=my-user --namespace=$KUBE_NAMESPACE
             config use-context my-context
