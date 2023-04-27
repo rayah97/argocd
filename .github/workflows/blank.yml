@@ -1,9 +1,7 @@
 name: Argo CD Deploy
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -17,8 +15,8 @@ jobs:
         uses: docker://bitnami/kubectl:latest
         with:
           args: |
-            config set-cluster my-cluster --server=$KUBE_SERVER --insecure-skip-tls-verify
-            config set-credentials my-user --token=$KUBE_TOKEN
+            config set-cluster minikube --server=$KUBE_SERVER --insecure-skip-tls-verify
+            config set-credentials my-sa --token=$KUBE_TOKEN
             config set-context my-context --cluster=my-cluster --user=my-user --namespace=$KUBE_NAMESPACE
             config use-context my-context
 
@@ -32,4 +30,4 @@ jobs:
         run: argocd login --insecure --grpc-web --username admin --password $ARGOCD_PASSWORD $ARGOCD_SERVER
 
       - name: Sync application
-        run: argocd app sync MyArgoCDrayah --timeout=10m
+        run: argocd app sync rayahargocd --timeout=10m
